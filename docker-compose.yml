@@ -1,0 +1,38 @@
+version: "3"
+
+
+services:
+
+  consul:
+    image: localhost:5000/consul${TAG}
+    labels: [app=consul]
+    ports:
+        - "8500:8500"
+    networks:
+        - consul-net
+    environment:
+        - 'CONSUL_LOCAL_CONFIG={"skip_leave_on_interrupt": true}'
+        - CONSUL_BIND_INTERFACE=eth0
+        - CONSUL=consul
+        - CONSUL_CHECK_LEADER=true
+    deploy:
+        replicas: 3
+        placement:
+            constraints: [node.role == manager]
+        resources:
+            reservations:
+                memory: 128M
+        restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 3
+            window: 120s
+        update_config:
+            parallelism: 1
+            delay: 10s
+            failure_action: continue
+
+networks:
+  consul-net:
+    external: true
+

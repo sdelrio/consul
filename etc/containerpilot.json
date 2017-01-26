@@ -1,0 +1,14 @@
+{
+  "consul" : "127.0.0.1:8500",
+  "preStart": ["/usr/local/bin/consul-manage", "preStart"],
+  "preStop": ["/usr/local/bin/consul-manage", "preStop"],
+  "services": [
+    {
+      "name": "consul-ui",
+      "port": 8500,
+      "health": ["/usr/local/bin/consul-manage", "health"],
+      "poll": 10,
+      "ttl": 25
+    }
+  ]
+}

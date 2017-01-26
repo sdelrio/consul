@@ -1,0 +1,78 @@
+#!/bin/bash
+set -eo pipefail
+
+# Update the -advertise address based on the interface saved on the enviornment CONSUL_BIND_INTERFACE (the one that base image consul uses)
+
+preStart() {
+    _log "Consul advertise $(ip -o -4 addr list $CONSUL_BIND_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1) address"
+}
+
+preStop() {
+    consul leave
+    _log "Consul leave"
+}
+
+# Check if a member of a raft. If consul info returns an error we'll
+# pipefail and exit for a failed health check.
+# If we have no peers then try to join the raft via the CNS svc record.
+# Once a node is connected to at least one other peer it'll get the rest
+# of the raft via the Consul LAN gossip.
+# If we end up joining ourselves we just retry on the next health check
+# until we've got the whole cluster together.
+
+# Check if there is no members connected, then join to the members on the docker service using
+# the dns name from docker service tasks.${consul} so we get all members in one consul join call.
+
+health() {
+    N_PEERS=$(consul info | awk '/num_peers/{print$3}')
+
+    if [ "$N_PEERS" == 0 ]; then
+        _log "No peers connected from $(hostname). Joining peers on DNS tasks.${CONSUL}"
+        sleep  $(( ($RANDOM % 3) ))
+        consul join tasks.${CONSUL}
+    fi
+
+    if [ "$CONSUL_CHECK_LEADER" = true ]; then
+        if [ "$N_PEERS" -ge 2 ]; then
+            # check if Im leader
+            LEADER=$(curl -s http://${CONSUL}:8500/v1/status/leader | tr -d '"'|cut -f 1 -d:)
+            MYIP=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1)
+            if [ "$LEADER" == "$MYIP" ]; then
+                _log "I'm leader ($MYIP)"
+            else
+                _log "Leader is $LEADER, I'm $MYIP"
+            fi
+        fi
+    fi
+}
+
+_log() {
+    echo "    [CP] $@"
+}
+
+# ---------------------------------------------------
+# parse arguments
+
+# Get function list
+funcs=($(declare -F -p | cut -d " " -f 3))
+
+until
+    if [ ! -z "$1" ]; then
+        # check if the first arg is a function in this file, or use a default
+        if [[ " ${funcs[@]} " =~ " $1 " ]]; then
+            cmd=$1
+            shift 1
+        fi
+
+        $cmd "$@"
+        if [ $? == 127 ]; then
+            help
+        fi
+
+        exit
+    else
+        health
+    fi
+do
+    echo
+done
