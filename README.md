@@ -6,7 +6,6 @@
 [![DockerStars](https://img.shields.io/docker/stars/sdelrio/consul.svg)](https://registry.hub.docker.com/u/sdelrio/consul/)
 [![ImageLayers](https://badge.imagelayers.io/sdelrio/consul:latest.svg)](https://imagelayers.io/?images=sdelrio/consul:latest)
 
-
 ## Run consul in a virtualbox swarm cluster
 
 1. If you don't have it, install the Docker for Windows, docker for Mac, or Docker Toolbox(including `docker` and `docker-compose`) on your laptop or other environment.
@@ -59,6 +58,31 @@ docker service create --network=consul-net --name=consul \
     -update-delay 10s \
     -update-parallelism 1 \
     -p 8500:8500 sdelrio/consul
+```
+
+## Environment vars
+
+The image use the official `consul` as base image, so all environment vars can be used (like `CONSUL_LOCAL_CONFIG`, `CONSUL_BIND_INTERFACE`).
+
+- `CONSUL`: Name of the service to ask for other consul peers. The image will use docker DNS to find the other peers. Usually this will be the name of the swarm service.
+- `CONSUL_CHECK_LEADER`: If is `true` the logs will show each health check interval if the container is the leader and or container's IP and the leader's IP:
+
+```
+consul_consul.3.l0e0zr114x50@swarm-1    | 2017/01/26 00:11:22     [CP] I'm leader (172.20.0.6)
+consul_consul.2.qwx39safki82@swarm-2    | 2017/01/26 00:11:26     [CP] Leader is 172.20.0.6, I'm 172.20.0.3
+consul_consul.4.qws5isxw6gpm@swarm-3    | 2017/01/26 00:11:27     [CP] Leader is 172.20.0.6, I'm 172.20.0.4
+consul_consul.3.l0e0zr114x50@swarm-1    | 2017/01/26 00:11:32     [CP] I'm leader (172.20.0.6)
+consul_consul.2.qwx39safki82@swarm-2    | 2017/01/26 00:11:36     [CP] Leader is 172.20.0.6, I'm 172.20.0.3
+consul_consul.4.qws5isxw6gpm@swarm-3    | 2017/01/26 00:11:37     [CP] Leader is 172.20.0.6, I'm 172.20.0.4
+consul_consul.3.l0e0zr114x50@swarm-1    | 2017/01/26 00:11:42     [CP] I'm leader (172.20.0.6)
+```
+
+## Docker Entry Point
+
+The entrypoint will execute consul with containerpilot, you can use the command to set your own parameters, by default the command will need 3 replicas:
+
+```
+agent -server -bootstrap-expect 3 -ui -client=0.0.0.0 -retry-interval 5s --log-level warn
 ```
 
 ## References
