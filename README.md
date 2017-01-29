@@ -55,8 +55,8 @@ docker service create --network=consul-net --name=consul \
     -e CONSUL=consul \
     -e CONSUL_CHECK_LEADER=true \
     --replicas 3 \
-    -update-delay 10s \
-    -update-parallelism 1 \
+    --update-delay 10s \
+    --update-parallelism 1 \
     -p 8500:8500 sdelrio/consul
 ```
 
