@@ -25,18 +25,26 @@ preStop() {
 
 health() {
     N_PEERS=$(consul info | awk '/num_peers/{print$3}')
+    MYIP=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1)
 
     if [ "$N_PEERS" == 0 ]; then
+        IPLIST=$(dig A tasks.${CONSUL} +short)
+        JOIN_ADDRESS=$(echo "$IPLIST" |awk -v mycurrentip="$MYIP" 'BEGIN {ORS=" "} mycurrentip !~ $0 {print $1}'| sed 's/ $//')
+
         _log "No peers connected from $(hostname). Joining peers on DNS tasks.${CONSUL}"
         sleep  $(( ($RANDOM % 3) ))
-        consul join tasks.${CONSUL}
+        for i in "${IPLIST[@]}"; do
+            sleep  $(( ($RANDOM % 3)  ))
+            _log "consul join $JOIN_ADDRESS"
+            consul join $JOIN_ADDRESS
+        done
+        return 1
     fi
 
     if [ "$CONSUL_CHECK_LEADER" = true ]; then
         if [ "$N_PEERS" -ge 2 ]; then
             # check if Im leader
             LEADER=$(curl -s http://${CONSUL}:8500/v1/status/leader | tr -d '"'|cut -f 1 -d:)
-            MYIP=$(ip -o -4 addr list $CONSUL_BIND_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1)
             if [ "$LEADER" == "$MYIP" ]; then
                 _log "I'm leader ($MYIP)"
             else
@@ -44,6 +52,7 @@ health() {
             fi
         fi
     fi
+    return 0
 }
 
 _log() {
