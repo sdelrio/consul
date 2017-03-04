@@ -11,7 +11,8 @@ RUN export CONTAINERPILOT_CHECKSUM=c1bcd137fadd26ca2998eec192d04c08f62beb1f \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/${archive}" | sha1sum -c \
     && tar zxf /tmp/${archive} -C /usr/local/bin \
     && rm /tmp/${archive} \
-    && apk add --no-cache bash curl
+    && apk add --no-cache bash curl \
+    && curl -sL https://github.com/sequenceiq/docker-alpine-dig/releases/download/v9.10.2/dig.tgz|tar -xzv -C /usr/local/bin/
 
 # configuration files and bootstrap scripts
 COPY etc/containerpilot.json etc/
