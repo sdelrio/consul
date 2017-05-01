@@ -2,9 +2,7 @@
 
 [Consul](http://www.consul.io/) in Docker, designed to be self-operating according to the autopilot pattern. This application demonstrates support for configuring the Consul raft so it can be used as a highly-available discovery catalog for other applications using the Autopilot pattern.
 
-[![DockerPulls](https://img.shields.io/docker/pulls/sdelrio/consul.svg)](https://registry.hub.docker.com/u/sdelrio/consul/)
-[![DockerStars](https://img.shields.io/docker/stars/sdelrio/consul.svg)](https://registry.hub.docker.com/u/sdelrio/consul/)
-[![ImageLayers](https://badge.imagelayers.io/sdelrio/consul:latest.svg)](https://imagelayers.io/?images=sdelrio/consul:latest)
+[![DockerPulls](https://img.shields.io/docker/pulls/sdelrio/consul.svg)](https://registry.hub.docker.com/u/sdelrio/consul/) [![DockerStars](https://img.shields.io/docker/stars/sdelrio/consul.svg)](https://registry.hub.docker.com/u/sdelrio/consul/) [![](https://images.microbadger.com/badges/image/sdelrio/consul.svg)](https://microbadger.com/images/sdelrio/consul "Get your own image badge on microbadger.com") [![](https://images.microbadger.com/badges/version/sdelrio/consul.svg)](https://microbadger.com/images/sdelrio/consul "Get your own version badge on microbadger.com")
 
 ## Run consul in a virtualbox swarm cluster
 
