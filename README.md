@@ -82,8 +82,10 @@ consul_consul.3.l0e0zr114x50@swarm-1    | 2017/01/26 00:11:42     [CP] I'm leade
 The entrypoint will execute consul with containerpilot, you can use the command to set your own parameters, by default the command will need 3 replicas:
 
 ```
-agent -server -bootstrap-expect 3 -ui -client=0.0.0.0 -retry-interval 5s --log-level warn
+agent -server -bootstrap-expect 3 -ui -client=0.0.0.0 -retry-interval 5s --log-level warn -disable-host-node-id
 ```
+
+> Consul generates node IDs from hostname and my conflict when you run two or more consul containers on the same host. Consul (v0.8.1+) has `-disable-host-node-id` flag to avoid this issue.
 
 ## References
 
