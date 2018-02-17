@@ -3,6 +3,7 @@ FROM consul
 # Add Containerpilot and set its configuration
 ENV CONTAINERPILOT_VERSION 2.6.0
 ENV CONTAINERPILOT file:///etc/containerpilot.json
+ENV HEALTH_URL http://localhost:8500/ui/
 
 RUN export CONTAINERPILOT_CHECKSUM=c1bcd137fadd26ca2998eec192d04c08f62beb1f \
     && export archive=containerpilot-${CONTAINERPILOT_VERSION}.tar.gz \
@@ -18,7 +19,7 @@ RUN export CONTAINERPILOT_CHECKSUM=c1bcd137fadd26ca2998eec192d04c08f62beb1f \
 COPY etc/containerpilot.json etc/
 COPY bin/* /usr/local/bin/
 
-HEALTHCHECK --interval=30s --timeout=20s --retries=10 CMD curl --fail -s http://localhost:8500/ui/ || exit 1
+HEALTHCHECK --interval=30s --timeout=20s --retries=10 CMD curl --fail -s $HEALTH_URL || exit 1
 
 ENTRYPOINT ["/usr/local/bin/containerpilot", "/usr/local/bin/docker-entrypoint.sh" ]
 CMD ["agent", "-server", "-bootstrap-expect", "3", "-ui", "-client=0.0.0.0", "-retry-interval", "5s", "--log-level", "warn", "-disable-host-node-id"]
