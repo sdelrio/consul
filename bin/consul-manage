@@ -37,8 +37,12 @@ health() {
         sleep  $(( ($RANDOM % 3) ))
         for i in "${IPLIST[@]}"; do
             sleep  $(( ($RANDOM % 3)  ))
-            _log "consul join $JOIN_ADDRESS"
-            consul join $JOIN_ADDRESS
+            if [[ -z $i ]]; then
+                _log "consul join list empty, not trying to join"
+            else
+                _log "consul join ($JOIN_ADDRESS)"
+                consul join $JOIN_ADDRESS
+            fi
         done
         return 1
     fi
