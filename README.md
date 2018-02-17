@@ -75,6 +75,8 @@ consul_consul.4.qws5isxw6gpm@swarm-3    | 2017/01/26 00:11:37     [CP] Leader is
 consul_consul.3.l0e0zr114x50@swarm-1    | 2017/01/26 00:11:42     [CP] I'm leader (172.20.0.6)
 ```
 
+- `PROTO`: Default value to `http`, for leader election, we could set this env var to `https`. So the election will resolve to `${PROTO}://${CONSUL}:8500/v1/status/leader`.
+
 ## Docker Entry Point
 
 The entrypoint will execute consul with containerpilot, you can use the command to set your own parameters, by default the command will need 3 replicas:
